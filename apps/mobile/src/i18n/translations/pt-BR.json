@@ -5707,5 +5707,16 @@
   "99451a5d2d40440f": "Retirada por {by}.",
   "3ee30a50b70fffab": "Retirada por {by}: {reason}",
   "201490988858b511": "retirada por {by}",
-  "46d614fa7b4bf1e5": "Execuções de workflow"
+  "46d614fa7b4bf1e5": "Execuções de workflow",
+  "24ed06c08f26b989": "Resumos automáticos de conversas",
+  "25562c99b63a1eb2": "Mantenha os resumos das conversas atualizados com seu modelo de geração de texto.",
+  "67c10d7953c9d5e1": "Resumo da conversa",
+  "6be86a17d8d0a4d7": "Atualizando",
+  "cef463eb473cbc1d": "Não foi possível atualizar",
+  "f04bbac86f0fef66": "Menos contexto",
+  "c7e22034a53963b5": "Mais contexto",
+  "14a9287d2b8b6f0a": "Ainda não há resumo.",
+  "7e2039ee409a7d7e": "Tentar resumir novamente",
+  "12f0cae5fd0227dc": "Atualizar resumo",
+  "89416dc66d40ef67": "Geração de texto"
 }

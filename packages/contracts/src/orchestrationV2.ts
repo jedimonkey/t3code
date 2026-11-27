@@ -498,6 +498,31 @@ const OrchestrationV2LastTitleRegeneration = Schema.Struct({
   completedAt: Schema.DateTimeUtc,
 });
 
+export const ThreadSummaryContent = Schema.Struct({
+  brief: Schema.Array(
+    Schema.Struct({
+      text: TrimmedNonEmptyString.check(Schema.isMaxLength(240)),
+      messageId: Schema.NullOr(MessageId),
+    }),
+  ).check(Schema.isMinLength(1), Schema.isMaxLength(3)),
+  details: Schema.Array(
+    Schema.Struct({
+      text: TrimmedNonEmptyString.check(Schema.isMaxLength(420)),
+      messageId: Schema.NullOr(MessageId),
+    }),
+  ).check(Schema.isMaxLength(8)),
+});
+export type ThreadSummaryContent = typeof ThreadSummaryContent.Type;
+
+export const ThreadSummaryState = Schema.Struct({
+  content: Schema.NullOr(ThreadSummaryContent),
+  fingerprint: Schema.NullOr(Schema.String),
+  status: Schema.Literals(["ready", "updating", "stale", "failed"]),
+  requestId: Schema.optionalKey(CommandId),
+  automatic: Schema.optionalKey(Schema.Boolean),
+});
+export type ThreadSummaryState = typeof ThreadSummaryState.Type;
+
 export const OrchestrationV2AppThread = Schema.Struct({
   ...OrchestrationV2CreationFields,
   id: ThreadId,
@@ -556,6 +581,7 @@ export const OrchestrationV2AppThread = Schema.Struct({
     Schema.withDecodingDefault(Effect.succeed(null)),
   ),
   opens: Schema.optional(LenientThreadOpens),
+  runningSummary: Schema.optionalKey(Schema.NullOr(ThreadSummaryState)),
   titleRegeneration: Schema.optional(
     Schema.NullOr(
       Schema.Struct({
@@ -3487,6 +3513,11 @@ export const OrchestrationV2Command = Schema.Union([
     threadId: ThreadId,
   }),
   Schema.Struct({
+    type: Schema.Literal("thread.summary.refresh"),
+    commandId: CommandId,
+    threadId: ThreadId,
+  }),
+  Schema.Struct({
     type: Schema.Literal("thread.metadata.update"),
     commandId: CommandId,
     threadId: ThreadId,
@@ -3851,6 +3882,13 @@ export type OrchestrationV2Command = typeof OrchestrationV2Command.Type;
 
 // Excluded from dispatchCommand so only the server can send these.
 const OrchestrationV2InternalCommand = Schema.Union([
+  Schema.Struct({
+    type: Schema.Literal("thread.summary.update"),
+    commandId: CommandId,
+    threadId: ThreadId,
+    expectedRequestId: Schema.NullOr(CommandId),
+    summary: ThreadSummaryState,
+  }),
   // The server issues this after checking the value against the run's declared schema.
   Schema.Struct({
     type: Schema.Literal("run.output.submit"),

@@ -1,5 +1,11 @@
-import { StrictMode } from "react";
-import { EnvironmentId, ProjectId, ThreadId, type ScopedThreadRef } from "@t3tools/contracts";
+import { StrictMode, type ReactNode } from "react";
+import {
+  EnvironmentId,
+  MessageId,
+  ProjectId,
+  ThreadId,
+  type ScopedThreadRef,
+} from "@t3tools/contracts";
 import { expect, it, vi } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { act, render } from "../../../test/render";
@@ -8,6 +14,7 @@ import { PopoverCreateHandle } from "../ui/popover";
 import { ChatCanvasContext } from "./ChatCanvasContext";
 import { resolveChatCanvasLayout } from "./chatCanvasLayout";
 import { ThreadDetailsCard } from "./ThreadDetailsCard";
+import { ThreadSummary } from "./ThreadSummary";
 import { ThreadRepositorySections } from "./ThreadRepositorySections";
 import { useThreadRepositoryPinsStore } from "../../threadRepositoryPinsStore";
 
@@ -53,10 +60,12 @@ function Card({
   automationRows = 0,
   serverOverflowRows = 0,
   issueListRows = 0,
+  summary,
 }: {
   threadRef: ScopedThreadRef;
   inline: boolean;
   fixture: ReturnType<typeof setup>;
+  summary?: ReactNode;
   /** Rows of 100px shown at full density. Compact always takes 50px. */
   rows?: number;
   /** Rows of 100px in an automations list shown at full density. */
@@ -87,6 +96,7 @@ function Card({
           anchor={fixture.anchor}
           handle={fixture.handle}
           contentKey={String(rows)}
+          summary={summary}
         >
           {(density) => (
             <>
@@ -275,4 +285,39 @@ it("keeps the repository list reachable after Show more expands it", async () =>
   await expect
     .element(page.getByRole("region", { name: "Thread details" }))
     .not.toHaveAttribute("data-density", "essential");
+});
+
+it("keeps the brief available in a narrow window and opens its context and source", async () => {
+  using fixture = setup();
+  const source = MessageId.make("deployment-decision");
+  const onJump = vi.fn();
+  await using _screen = await render(
+    <Card
+      threadRef={threadA}
+      inline={false}
+      fixture={fixture}
+      summary={
+        <ThreadSummary
+          thread={threadA}
+          canRefresh={false}
+          onJump={onJump}
+          summary={{
+            fingerprint: "fixture",
+            status: "ready",
+            content: {
+              brief: [{ text: "Approve the deployment change.", messageId: source }],
+              details: [{ text: "Keep the existing deployment role.", messageId: null }],
+            },
+          }}
+        />
+      }
+    />,
+  );
+  await act(() => useRightPanelStore.getState().setThreadPanelOpen(threadA, "popover", true));
+  await expect.element(page.getByRole("heading", { name: "Thread summary" })).toBeVisible();
+  await expect.element(page.getByText("Keep the existing deployment role.")).not.toBeVisible();
+  await page.getByText("More context").click();
+  await expect.element(page.getByText("Keep the existing deployment role.")).toBeVisible();
+  await page.getByRole("button", { name: "Approve the deployment change." }).click();
+  expect(onJump).toHaveBeenCalledWith(source);
 });

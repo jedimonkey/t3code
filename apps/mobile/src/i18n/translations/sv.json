@@ -5713,5 +5713,16 @@
   "99451a5d2d40440f": "Återkallad av {by}.",
   "3ee30a50b70fffab": "Återkallad av {by}: {reason}",
   "201490988858b511": "återkallad av {by}",
-  "46d614fa7b4bf1e5": "Arbetsflödeskörningar"
+  "46d614fa7b4bf1e5": "Arbetsflödeskörningar",
+  "24ed06c08f26b989": "Automatiska trådsammanfattningar",
+  "25562c99b63a1eb2": "Håll trådsammanfattningarna aktuella med din modell för textgenerering.",
+  "67c10d7953c9d5e1": "Trådsammanfattning",
+  "6be86a17d8d0a4d7": "Uppdaterar",
+  "cef463eb473cbc1d": "Det gick inte att uppdatera",
+  "f04bbac86f0fef66": "Mindre sammanhang",
+  "c7e22034a53963b5": "Mer sammanhang",
+  "14a9287d2b8b6f0a": "Ingen sammanfattning ännu.",
+  "7e2039ee409a7d7e": "Försök igen",
+  "12f0cae5fd0227dc": "Uppdatera sammanfattning",
+  "89416dc66d40ef67": "Textgenerering"
 }

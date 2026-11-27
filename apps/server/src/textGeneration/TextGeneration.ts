@@ -46,6 +46,7 @@ type TextGenerationOp =
   | "generatePrContent"
   | "generateBranchName"
   | "generateThreadTitle"
+  | "generateThreadSummary"
   | "generateReviewGuide"
   | "generateTranscriptionPostProcessing";
 
@@ -174,6 +175,14 @@ export const make = Effect.gen(function* () {
     );
   });
   return TextGeneration.of({
+    generateThreadSummary: Effect.fn("TextGeneration.generateThreadSummary")(function (input) {
+      return generate(
+        "generateThreadSummary",
+        input.modelSelection,
+        input.projectId,
+        (service, modelSelection) => service.generateThreadSummary({ ...input, modelSelection }),
+      );
+    }),
     generateCommitMessage: Effect.fn("TextGeneration.generateCommitMessage")(function (input) {
       return generate(
         "generateCommitMessage",

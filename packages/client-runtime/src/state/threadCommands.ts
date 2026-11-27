@@ -4,7 +4,9 @@ import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import { AsyncResult, Atom, type AtomRegistry } from "effect/reactivity";
 import {
+  ORCHESTRATION_V2_WS_METHODS,
   WS_METHODS,
+  type OrchestrationV2Command,
   type EnvironmentId,
   type OrchestrationV2ShellSnapshot,
   type OrchestrationV2ThreadShell,
@@ -22,6 +24,7 @@ import {
   createEnvironmentRpcCommand,
   environmentConnectionAtom,
 } from "./runtime.ts";
+import { requestGuarded } from "../rpc/client.ts";
 import { waitForTitleRegenerationOutcome } from "./threadTitleRegeneration.ts";
 import {
   type InterruptThreadTurnInput,
@@ -233,6 +236,14 @@ export function createThreadEnvironmentAtoms<R, E>(
   ) =>
     mcpNoticeSignedInFamily(JSON.stringify([mcpSignInKey(environmentId, input), input.noticeAt]));
   const sent = {
+    refreshSummary: createEnvironmentRpcCommand(runtime, {
+      label: "environment-data:commands:thread:refresh-summary",
+      tag: ORCHESTRATION_V2_WS_METHODS.dispatchCommand,
+      execute: (input: Extract<OrchestrationV2Command, { type: "thread.summary.refresh" }>) =>
+        requestGuarded(ORCHESTRATION_V2_WS_METHODS.dispatchCommand, input),
+      scheduler,
+      concurrency,
+    }),
     armTitleRegeneration: createEnvironmentCommand(runtime, {
       label: "environment-data:commands:thread:regenerate-title",
       execute: armTitleRegeneration,

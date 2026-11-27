@@ -238,6 +238,7 @@ interface MessagesTimelineProps {
   respondingRequestIds?: TimelineRowSharedState["respondingRequestIds"];
   canOperateThread?: boolean;
   onRespondToApproval?: TimelineRowSharedState["onRespondToApproval"];
+  messageJump?: { readonly messageId: MessageId; readonly key: number } | null;
   citationRequest?: AssistantCitationRequest | null;
   citationHistory?: CitedHistory;
   onCiteAssistantText?: (
@@ -367,6 +368,7 @@ const ConversationTimeline = memo(function ConversationTimeline({
   respondingRequestIds = EMPTY_RESPONDING_REQUEST_IDS,
   canOperateThread = false,
   onRespondToApproval,
+  messageJump = null,
   citationRequest = null,
   citationHistory = CITED_HISTORY_LOADING,
   onCiteAssistantText,
@@ -664,7 +666,7 @@ const ConversationTimeline = memo(function ConversationTimeline({
   );
   const toolCallVisibility =
     findActive && preferredToolCallVisibility === "zen" ? "hideAll" : preferredToolCallVisibility;
-  const revealedMessageId = citationRequest?.citation.messageId ?? null;
+  const revealedMessageId = messageJump?.messageId ?? citationRequest?.citation.messageId ?? null;
   // Imported turns and post-steer work fold under synthetic keys, not the entries' run ids.
   const findFoldRunIds = findActive
     ? timelineTurnFoldRunIdsByEntryId({
@@ -695,20 +697,21 @@ const ConversationTimeline = memo(function ConversationTimeline({
   const [citationExpandedFor, setCitationExpandedFor] = useState<string | null>(null);
   // Back/Forward can restore an earlier activation key, so the marker clears
   // between activations and a revisit opens the fold again.
-  if (!citationRequest && citationExpandedFor !== null) setCitationExpandedFor(null);
+  const revealKey = messageJump ? `message:${messageJump.key}` : citationRequest?.key;
+  if (revealKey === undefined && citationExpandedFor !== null) setCitationExpandedFor(null);
   const citedEntry =
-    citationRequest &&
-    citationExpandedFor !== citationRequest.key &&
-    citationHistory._tag !== "failed"
+    revealKey !== undefined &&
+    citationExpandedFor !== revealKey &&
+    (messageJump !== null || citationHistory._tag !== "failed")
       ? timelineEntries.find(
           (entry) =>
             (entry.kind === "message" &&
-              entry.message.role === "assistant" &&
-              entry.message.id === citationRequest.citation.messageId) ||
-            (entry.kind === "sent-message" && entry.id === citationRequest.citation.messageId),
+              (messageJump !== null || entry.message.role === "assistant") &&
+              entry.message.id === revealedMessageId) ||
+            (entry.kind === "sent-message" && entry.id === revealedMessageId),
         )
       : undefined;
-  if (citationRequest && citedEntry) {
+  if (revealKey !== undefined && citedEntry) {
     const citedRunId = (
       findFoldRunIds ??
       timelineTurnFoldRunIdsByEntryId({
@@ -721,7 +724,7 @@ const ConversationTimeline = memo(function ConversationTimeline({
         revealedMessageId,
       })
     ).get(citedEntry.id);
-    setCitationExpandedFor(citationRequest.key);
+    setCitationExpandedFor(revealKey);
     if (citedRunId) {
       setExpandedRunIds((previous) =>
         previous.has(citedRunId) ? previous : new Set(previous).add(citedRunId),
@@ -878,6 +881,26 @@ const ConversationTimeline = memo(function ConversationTimeline({
     onCitationListLoad();
     setFindListReady(true);
   };
+  const jumped = useRef<typeof messageJump>(null);
+  const jumpIndex =
+    messageJump === null
+      ? -1
+      : rows.findIndex((row) => row.kind === "message" && row.message.id === messageJump.messageId);
+  // oxlint-disable-next-line t3code/no-unreasoned-state-sync -- scrolls the virtual timeline once the requested source row has loaded
+  useLayoutEffect(() => {
+    if (
+      !findListReady ||
+      messageJump === null ||
+      jumped.current === messageJump ||
+      jumpIndex < 0 ||
+      !listRef.current
+    )
+      return;
+    jumped.current = messageJump;
+    navigateTimeline();
+    void listRef.current.scrollToIndex({ index: jumpIndex, animated: false, viewPosition: 0.2 });
+  }, [findListReady, jumpIndex, listRef, messageJump, navigateTimeline]);
+
   const [minimapHasPersistentGutter, setMinimapHasPersistentGutter] = useState(false);
   // Every full-screen viewer reports false when it unmounts, so a row that leaves the list
   // while full screen releases its pin too.

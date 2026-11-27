@@ -5707,5 +5707,16 @@
   "99451a5d2d40440f": "Retirada por {by}.",
   "3ee30a50b70fffab": "Retirada por {by}: {reason}",
   "201490988858b511": "retirada por {by}",
-  "46d614fa7b4bf1e5": "Ejecuciones de flujos de trabajo"
+  "46d614fa7b4bf1e5": "Ejecuciones de flujos de trabajo",
+  "24ed06c08f26b989": "Resúmenes automáticos de hilos",
+  "25562c99b63a1eb2": "Mantén al día los resúmenes de hilos con tu modelo de generación de texto.",
+  "67c10d7953c9d5e1": "Resumen del hilo",
+  "6be86a17d8d0a4d7": "Actualizando",
+  "cef463eb473cbc1d": "No se pudo actualizar",
+  "f04bbac86f0fef66": "Menos contexto",
+  "c7e22034a53963b5": "Más contexto",
+  "14a9287d2b8b6f0a": "Todavía no hay resumen.",
+  "7e2039ee409a7d7e": "Reintentar resumen",
+  "12f0cae5fd0227dc": "Actualizar resumen",
+  "89416dc66d40ef67": "Generación de texto"
 }

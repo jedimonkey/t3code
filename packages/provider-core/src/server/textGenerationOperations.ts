@@ -12,6 +12,7 @@ import {
   buildPrContentPrompt,
   buildReviewGuidePrompt,
   buildThreadTitlePrompt,
+  buildThreadSummaryPrompt,
 } from "./textGenerationPrompts.ts";
 import {
   sanitizeCommitSubject,
@@ -91,6 +92,17 @@ export const generatedThreadTitle = (raw: string) => {
 };
 
 export function fromRunner(name: string, run: Runner): ProviderTextGeneration {
+  const generateThreadSummary: ProviderTextGeneration["generateThreadSummary"] = Effect.fn(
+    `${name}.generateThreadSummary`,
+  )(function (input) {
+    return run({
+      operation: "generateThreadSummary",
+      cwd: input.cwd,
+      modelSelection: input.modelSelection,
+      ...buildThreadSummaryPrompt(input.context),
+    });
+  });
+
   const generateCommitMessage: ProviderTextGeneration["generateCommitMessage"] = Effect.fn(
     `${name}.generateCommitMessage`,
   )(function* (input) {
@@ -202,6 +214,7 @@ export function fromRunner(name: string, run: Runner): ProviderTextGeneration {
   });
 
   return {
+    generateThreadSummary,
     generateCommitMessage,
     generatePrContent,
     generateBranchName,

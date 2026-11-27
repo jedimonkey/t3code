@@ -118,6 +118,7 @@ export const layer: Layer.Layer<ThreadForkServiceV2> = Layer.succeed(
         title: input.title ?? `${input.sourceProjection.thread.title} fork`,
         // The source's title job and rename stay with the source thread.
         titleRegeneration: null,
+        runningSummary: null,
         titleRenamed: false,
         activeProviderThreadId: null,
         lineage: {

@@ -13033,5 +13033,16 @@
       "v": "v"
     },
     " more in Linked items"
-  ]
+  ],
+  "cef463eb473cbc1d": "Couldn't refresh",
+  "5e66c9e2849a8514": "Out of date",
+  "67c10d7953c9d5e1": "Thread summary",
+  "7e2039ee409a7d7e": "Retry summary",
+  "12f0cae5fd0227dc": "Refresh summary",
+  "c7a0eacc69900f00": "Thread summary",
+  "a9c2bf00c9d301df": "More context",
+  "7288fc86ad64d6be": "No summary yet.",
+  "25562c99b63a1eb2": "Keep thread summaries current using your text-generation model.",
+  "24ed06c08f26b989": "Automatic thread summaries",
+  "151e548d1047f8a5": "running brief cliff notes model usage refresh"
 }
