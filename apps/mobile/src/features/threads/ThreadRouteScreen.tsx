@@ -121,6 +121,9 @@ import {
   threadRouteIsHydrating,
   threadRouteOpensDraft,
 } from "./thread-route-hydration";
+import { useEnvironmentServerConfig } from "../../state/entities";
+import { ThreadSummaryModal } from "./ThreadSummaryModal";
+import { requestThreadMessageJump } from "./threadMessageJump";
 import { ThreadHeader } from "./ThreadHeader";
 import { resumeThread } from "./resume-thread";
 import {
@@ -392,6 +395,10 @@ function ThreadRouteContent(
   );
   const selectedThreadDetailState = props.selectedThreadDetailState;
   const selectedThreadDetail = Option.getOrNull(selectedThreadDetailState.data);
+  const summarySupported =
+    useEnvironmentServerConfig(selectedThread?.environmentId ?? null)?.environment.capabilities
+      .threadSummaries === true;
+  const [summaryThreadKey, setSummaryThreadKey] = useState<string | null>(null);
   const { selectedThreadCwd } = useSelectedThreadWorktree();
   const startSideChat = useStartSideChat();
   const composer = useThreadComposerState({ startSideChat });
@@ -1048,6 +1055,19 @@ function ThreadRouteContent(
         onDismiss={() => dismissGitActionResult(gitActionThreadRef)}
         onOpenPullRequest={openPullRequest}
       />
+      {selectedThreadDetail &&
+      summaryThreadKey === scopedThreadKey(selectedThread.environmentId, selectedThread.id) ? (
+        <ThreadSummaryModal
+          thread={scopeThreadRef(selectedThread.environmentId, selectedThread.id)}
+          summary={selectedThreadDetail.thread.runningSummary ?? null}
+          canRefresh={canOperateThread}
+          onClose={() => setSummaryThreadKey(null)}
+          onJump={(messageId) => {
+            requestThreadMessageJump(summaryThreadKey, messageId);
+            setSummaryThreadKey(null);
+          }}
+        />
+      ) : null}
       <ThreadScreenBinding
         header={
           props.inspectorPresentation ? null : (
@@ -1058,6 +1078,14 @@ function ThreadRouteContent(
               hasThreadCwd={selectedThreadCwd !== null}
               inspectorMode={inspectorMode}
               onOpenFilesInspector={handleOpenFilesInspector}
+              {...(selectedThreadDetail && summarySupported
+                ? {
+                    onOpenSummary: () =>
+                      setSummaryThreadKey(
+                        scopedThreadKey(selectedThread.environmentId, selectedThread.id),
+                      ),
+                  }
+                : {})}
               onReturnToThread={props.onReturnToThread}
             />
           )

@@ -26,6 +26,7 @@ export function ThreadDetailsCard({
   handle,
   contentKey,
   onContextMenu,
+  summary,
   children,
 }: {
   threadRef: ScopedThreadRef;
@@ -34,6 +35,7 @@ export function ThreadDetailsCard({
   /** Changes when the set of rendered items changes, so cached heights are measured again. */
   contentKey: string;
   onContextMenu?: MouseEventHandler<HTMLDivElement>;
+  summary?: ReactNode;
   children: (density: "full" | "compact" | "essential") => ReactNode;
 }) {
   const gt = useGT();
@@ -117,7 +119,8 @@ export function ThreadDetailsCard({
   const card = (
     <div
       className={cn(
-        "dropdown-glass isolate contain-paint grid max-h-full grid-rows-[minmax(0,1fr)] overflow-hidden rounded-2xl",
+        "isolate contain-paint grid max-h-full grid-rows-[minmax(0,1fr)] overflow-hidden rounded-2xl",
+        !summary && "dropdown-glass",
         mode === "popover" &&
           "max-h-[min(calc(100dvh-6.5rem),calc(var(--available-height,100dvh)-1rem))]",
       )}
@@ -126,7 +129,16 @@ export function ThreadDetailsCard({
       data-thread-details-card
     >
       <ScrollArea scrollFade className="min-h-0">
-        <div ref={setContentElement}>{children(density)}</div>
+        <div ref={setContentElement}>
+          {summary ? (
+            <div className="grid gap-2">
+              <div className="dropdown-glass overflow-hidden rounded-2xl">{children(density)}</div>
+              <div className="dropdown-glass rounded-2xl">{summary}</div>
+            </div>
+          ) : (
+            children(density)
+          )}
+        </div>
       </ScrollArea>
     </div>
   );

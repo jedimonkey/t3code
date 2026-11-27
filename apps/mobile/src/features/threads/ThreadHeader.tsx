@@ -22,6 +22,7 @@ export function ThreadHeader(props: {
   readonly draft?: boolean;
   readonly hasThreadCwd: boolean;
   readonly inspectorMode: ThreadInspectorMode | null;
+  readonly onOpenSummary?: () => void;
   readonly onOpenFilesInspector: () => void;
 }) {
   const gt = useGT();
@@ -44,6 +45,14 @@ export function ThreadHeader(props: {
         },
       ]
     : [];
+  if (props.onOpenSummary) {
+    actions.push({
+      accessibilityLabel: gt("Thread summary"),
+      icon: "doc.text",
+      onPress: props.onOpenSummary,
+      separateBackground: false,
+    });
+  }
   const menus = [gitMenu, terminalMenu].filter((menu): menu is AppBarMenu => menu !== null);
 
   return (

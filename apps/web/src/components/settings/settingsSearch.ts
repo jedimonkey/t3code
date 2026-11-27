@@ -956,6 +956,13 @@ export const SETTINGS_SEARCH_ITEMS = [
     desktopOnly: true,
   },
   {
+    id: "automatic-thread-summaries",
+    title: msg("Automatic thread summaries"),
+    to: "/settings/threads",
+    scope: "environment-defaults",
+    searchTerms: [msg("running brief cliff notes model usage refresh")],
+  },
+  {
     id: "text-generation-model",
     title: msg("Text generation model"),
     to: "/settings/threads",

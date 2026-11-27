@@ -458,8 +458,11 @@ export const layer: Layer.Layer<
             );
           const events: Array<OrchestrationV2DomainEvent> = [];
           // First, so a client that sees the runs rolled back already knows what was left.
-          if (input.requestId !== undefined && unrestorable.length > 0) {
-            const thread = yield* projections.getThread(input.threadId);
+          const thread = yield* projections.getThread(input.threadId);
+          if (
+            thread.runningSummary != null ||
+            (input.requestId !== undefined && unrestorable.length > 0)
+          ) {
             events.push(
               yield* makeEvent({
                 type: "thread.metadata-updated",
@@ -468,12 +471,17 @@ export const layer: Layer.Layer<
                 occurredAt: now,
                 payload: {
                   ...thread,
-                  rollbackUnrestored: {
-                    requestId: input.requestId,
-                    repositories: unrestorable.map(
-                      (repository) => repository.label ?? path.basename(repository.cwd),
-                    ),
-                  },
+                  ...(thread.runningSummary != null ? { runningSummary: null } : {}),
+                  ...(input.requestId !== undefined && unrestorable.length > 0
+                    ? {
+                        rollbackUnrestored: {
+                          requestId: input.requestId,
+                          repositories: unrestorable.map(
+                            (repository) => repository.label ?? path.basename(repository.cwd),
+                          ),
+                        },
+                      }
+                    : {}),
                   updatedAt: now,
                 },
               }),

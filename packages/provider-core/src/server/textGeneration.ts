@@ -5,6 +5,7 @@ import type {
   ProjectId,
   PullRequestReviewGuide,
   TextGenerationError,
+  ThreadSummaryContent,
 } from "@t3tools/contracts";
 import type * as Effect from "effect/Effect";
 
@@ -118,7 +119,18 @@ export interface TranscriptionPostProcessingResult {
   transcription: string;
 }
 
+export interface ThreadSummaryGenerationInput {
+  cwd: string;
+  context: string;
+  modelSelection: ModelSelection;
+  projectId: ProjectId;
+}
+
 export interface ProviderTextGeneration {
+  readonly generateThreadSummary: (
+    input: ThreadSummaryGenerationInput,
+  ) => Effect.Effect<ThreadSummaryContent, TextGenerationError>;
+
   readonly generateTranscriptionPostProcessing: (
     input: TranscriptionPostProcessingInput,
   ) => Effect.Effect<TranscriptionPostProcessingResult, TextGenerationError>;

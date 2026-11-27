@@ -1033,6 +1033,7 @@ describe("providerMaintenanceRunner", () => {
         snapshot: { getSnapshot: Effect.succeed(baseProvider) } as ProviderInstance["snapshot"],
         orchestrationAdapter: {} as ProviderInstance["orchestrationAdapter"],
         textGeneration: TextGeneration.TextGeneration.of({
+          generateThreadSummary: () => Effect.die("summary unavailable in this test"),
           generateCommitMessage: () => Effect.die("unused"),
           generatePrContent: () => Effect.die("unused"),
           generateBranchName: () => Effect.die("unused"),

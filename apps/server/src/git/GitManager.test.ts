@@ -330,6 +330,7 @@ function createTextGeneration(
         title: "Update workflow",
       }),
     generateReviewGuide: () => Effect.succeed({ stops: [] }),
+    generateThreadSummary: () => Effect.die("summary unavailable in this test"),
     generateTranscriptionPostProcessing: () =>
       Effect.succeed({ transcription: "processed transcript" }),
     ...overrides,
@@ -381,6 +382,7 @@ function createTextGeneration(
         ),
       ),
     generateReviewGuide: (input) => implementation.generateReviewGuide(input),
+    generateThreadSummary: () => Effect.die("summary unavailable in this test"),
     generateTranscriptionPostProcessing: (input) =>
       implementation.generateTranscriptionPostProcessing(input),
   };

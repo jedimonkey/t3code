@@ -322,6 +322,9 @@ export const makeCodexTextGeneration = Effect.fn("makeCodexTextGeneration")(func
           ...(mcpServersOff && launchArgsSetMcpTable ? ["--config", mcpServersOff] : []),
           // After launch args, so a launch arg's enabled=true cannot turn a server back on.
           ...codexMcpServerOffFlags(enabledMcpServers),
+          ...(operation === "generateThreadSummary"
+            ? ["--config", "features.shell_tool=false", "--config", 'web_search="disabled"']
+            : []),
           "--ephemeral",
           "--skip-git-repo-check",
           "-s",

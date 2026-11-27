@@ -5715,5 +5715,16 @@
   "99451a5d2d40440f": "Withdrawn by {by}.",
   "3ee30a50b70fffab": "Withdrawn by {by}: {reason}",
   "201490988858b511": "withdrawn by {by}",
-  "46d614fa7b4bf1e5": "Workflow runs"
+  "46d614fa7b4bf1e5": "Workflow runs",
+  "24ed06c08f26b989": "Automatic thread summaries",
+  "25562c99b63a1eb2": "Keep thread summaries current using your text-generation model.",
+  "67c10d7953c9d5e1": "Thread summary",
+  "6be86a17d8d0a4d7": "Updating",
+  "cef463eb473cbc1d": "Couldn't refresh",
+  "f04bbac86f0fef66": "Less context",
+  "c7e22034a53963b5": "More context",
+  "14a9287d2b8b6f0a": "No summary yet.",
+  "7e2039ee409a7d7e": "Retry summary",
+  "12f0cae5fd0227dc": "Refresh summary",
+  "89416dc66d40ef67": "Text generation"
 }

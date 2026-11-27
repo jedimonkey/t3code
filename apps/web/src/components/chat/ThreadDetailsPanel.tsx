@@ -51,7 +51,7 @@ import { Menu, MenuPopup } from "../ui/menu";
 
 interface ThreadDetailsPanelProps extends Pick<
   ComponentProps<typeof ThreadDetailsCard>,
-  "anchor" | "handle"
+  "anchor" | "handle" | "summary"
 > {
   forceNewWorktree?: boolean;
   environmentId: EnvironmentId;
@@ -160,6 +160,11 @@ export function ThreadDetailsPanel(props: ThreadDetailsPanelProps) {
       threadRef={{ environmentId: props.environmentId, threadId: props.threadId }}
       anchor={props.anchor}
       handle={props.handle}
+      summary={
+        visible.summary && serverConfig?.environment.capabilities.threadSummaries
+          ? props.summary
+          : undefined
+      }
       contentKey={THREAD_DETAILS_ITEMS.filter((item) => visible[item.id])
         .map((item) => item.id)
         .join(",")}

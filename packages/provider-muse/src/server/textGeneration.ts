@@ -33,6 +33,7 @@ import {
   buildCommitMessagePrompt,
   buildPrContentPrompt,
   buildThreadTitlePrompt,
+  buildThreadSummaryPrompt,
 } from "@t3tools/provider-core/server/textGenerationPrompts";
 import {
   sanitizeCommitSubject,
@@ -400,6 +401,12 @@ export const makeMuseTextGeneration = Effect.fn("makeMuseTextGeneration")(functi
     generateBranchName,
     generateThreadTitle,
     generateReviewGuide,
+    generateThreadSummary: (input) =>
+      runMuseJson({
+        operation: "generateThreadSummary",
+        ...buildThreadSummaryPrompt(input.context),
+        modelSelection: input.modelSelection,
+      }),
     generateTranscriptionPostProcessing,
   } satisfies ProviderTextGeneration;
 });

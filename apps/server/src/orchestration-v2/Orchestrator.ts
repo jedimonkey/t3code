@@ -677,6 +677,8 @@ function commandThreadId(command: OrchestrationV2ServerCommand): ThreadId {
     case "thread.pull-request-watch.sync":
     case "thread.pull-request-watch.checks-reopen":
     case "thread.pull-request.sync":
+    case "thread.summary.refresh":
+    case "thread.summary.update":
     case "thread.title.regeneration.complete":
     case "thread.project.adopt-folder":
     case "thread.runtime-mode.set":
@@ -4505,6 +4507,8 @@ const makeOrchestrator = Effect.fn("orchestrationV2.Orchestrator.layer")(functio
           | "thread.pull-request-watch.sync"
           | "thread.pull-request-watch.checks-reopen"
           | "thread.pull-request.sync"
+          | "thread.summary.refresh"
+          | "thread.summary.update"
           | "thread.title.regeneration.complete"
           | "thread.runtime-mode.set"
           | "thread.interaction-mode.set"
@@ -5079,6 +5083,15 @@ const makeOrchestrator = Effect.fn("orchestrationV2.Orchestrator.layer")(functio
           return {
             ...thread,
             archivedAt: now,
+            ...(thread.runningSummary?.automatic && thread.runningSummary.status === "updating"
+              ? {
+                  runningSummary: {
+                    content: thread.runningSummary.content,
+                    fingerprint: thread.runningSummary.fingerprint,
+                    status: "stale" as const,
+                  },
+                }
+              : {}),
             titleRegeneration: null,
             guestShare: null,
             pullRequests: thread.pullRequests?.map((link) => withPullRequestWatch(link, undefined)),
@@ -5580,6 +5593,21 @@ const makeOrchestrator = Effect.fn("orchestrationV2.Orchestrator.layer")(functio
                 }),
             updatedAt: thread.updatedAt,
           };
+        case "thread.summary.refresh":
+          return {
+            ...thread,
+            runningSummary: {
+              content: thread.runningSummary?.content ?? null,
+              fingerprint: thread.runningSummary?.fingerprint ?? null,
+              status: "updating",
+              requestId: command.commandId,
+            },
+          };
+        case "thread.summary.update":
+          return (thread.runningSummary?.requestId ?? null) === command.expectedRequestId &&
+            !(command.summary.automatic === true && thread.archivedAt !== null)
+            ? { ...thread, runningSummary: command.summary }
+            : thread;
         case "thread.title.regeneration.complete":
           return thread.titleRegeneration?.requestId === command.requestId
             ? {
@@ -5649,6 +5677,7 @@ const makeOrchestrator = Effect.fn("orchestrationV2.Orchestrator.layer")(functio
       });
       return;
     }
+    if (command.type === "thread.summary.update" && updatedThread === thread) return;
     const eventType = (() => {
       switch (command.type) {
         case "thread.archive":
@@ -5678,6 +5707,8 @@ const makeOrchestrator = Effect.fn("orchestrationV2.Orchestrator.layer")(functio
         case "thread.mark-unread":
           return "thread.marked-unread" as const;
         case "thread.metadata.update":
+        case "thread.summary.refresh":
+        case "thread.summary.update":
         case "thread.title.regeneration.complete":
           return "thread.metadata-updated" as const;
         case "thread.pull-request.link":
@@ -16270,6 +16301,8 @@ const makeOrchestrator = Effect.fn("orchestrationV2.Orchestrator.layer")(functio
       case "thread.issue.unlink":
       case "thread.pull-request.watch":
       case "thread.pull-request.sync":
+      case "thread.summary.refresh":
+      case "thread.summary.update":
       case "thread.title.regeneration.complete":
       case "thread.runtime-mode.set":
       case "thread.interaction-mode.set":
@@ -16666,6 +16699,7 @@ const makeOrchestrator = Effect.fn("orchestrationV2.Orchestrator.layer")(functio
           planned.events.length > 0 ||
           isUnobservedAcknowledgement(command) ||
           command.type === "thread.background-work.settle" ||
+          command.type === "thread.summary.update" ||
           // A stale visit changes no read state.
           command.type === "thread.visit" ||
           // A read can answer a watch again before a push's reopen lands; nothing is left to clear.

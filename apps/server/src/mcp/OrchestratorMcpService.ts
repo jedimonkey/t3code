@@ -1073,6 +1073,14 @@ function threadDetail(
     interactionMode: projection.thread.interactionMode,
     linkedPullRequest: projection.thread.linkedPullRequest ?? null,
     ...threadPullRequests(projection.thread.pullRequests, firstPage),
+    ...(firstPage && projection.thread.runningSummary
+      ? {
+          runningSummary: {
+            content: projection.thread.runningSummary.content,
+            status: projection.thread.runningSummary.status,
+          },
+        }
+      : {}),
     titleRegeneration:
       projection.thread.titleRegeneration === undefined ||
       projection.thread.titleRegeneration === null

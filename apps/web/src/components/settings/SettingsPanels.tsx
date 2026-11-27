@@ -1949,6 +1949,9 @@ export function ThreadsSettingsPanel() {
     (environment?.serverConfig
       ? providersByEnvironment.get(environment.environmentId)
       : undefined) ?? EMPTY_SERVER_PROVIDERS;
+  const supportsThreadSummaries = connectedEnvironments.every(
+    (target) => target.serverConfig?.environment.capabilities.threadSummaries === true,
+  );
   const supportsAutoSettlementScope = connectedEnvironments.every(
     (target) => target.serverConfig?.environment.capabilities.threadAutoSettlementScope === true,
   );
@@ -2208,6 +2211,21 @@ export function ThreadsSettingsPanel() {
       ) : null}
 
       <SettingsSection id="text-generation" title={gt("Text generation")}>
+        {!isProjectScope && hasServerTargets && supportsThreadSummaries ? (
+          <SettingsRow
+            serverScoped
+            settingKeys={["automaticThreadSummaries"]}
+            {...setting("automatic-thread-summaries")}
+            description={gt("Keep thread summaries current using your text-generation model.")}
+            control={
+              <Switch
+                checked={settings.automaticThreadSummaries}
+                onCheckedChange={(checked) => updateSettings({ automaticThreadSummaries: checked })}
+                aria-label={gt("Automatic thread summaries")}
+              />
+            }
+          />
+        ) : null}
         <SettingsRow
           serverScoped
           settingKeys={["textGenerationModelSelection"]}

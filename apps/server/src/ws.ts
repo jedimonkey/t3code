@@ -1,3 +1,4 @@
+import { ThreadSummaryService } from "./orchestration-v2/ThreadSummaryService.ts";
 import { GitCommandError, OrchestrationDispatchCommandError } from "@t3tools/contracts";
 // @effect-diagnostics-next-line nodeBuiltinImport:off -- A synchronous digest inside the pure provider mapping.
 import * as NodeCrypto from "node:crypto";
@@ -2395,6 +2396,13 @@ export const layerWsRpc = (
           Stream.unwrap(
             Effect.annotateCurrentSpan({ "orchestration_v2.thread_id": input.threadId }).pipe(
               Effect.andThen(threadViewers.view(input.threadId)),
+              Effect.andThen(Effect.serviceOption(ThreadSummaryService)),
+              Effect.andThen(
+                Option.match({
+                  onNone: () => Effect.void,
+                  onSome: (summaries) => summaries.opened(input.threadId),
+                }),
+              ),
               Effect.andThen(subscribeOrchestrationV2Thread(input)),
             ),
           ),

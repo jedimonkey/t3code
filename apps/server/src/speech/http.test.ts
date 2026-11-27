@@ -60,6 +60,7 @@ const dependencies = Layer.mergeAll(
   Layer.succeed(
     TextGeneration.TextGeneration,
     TextGeneration.TextGeneration.of({
+      generateThreadSummary: () => Effect.die("summary unavailable in this test"),
       generateCommitMessage: () => Effect.die("not used"),
       generatePrContent: () => Effect.die("not used"),
       generateBranchName: () => Effect.die("not used"),
@@ -401,6 +402,7 @@ effectIt.effect("tells the client why transcript cleanup failed", () =>
       Layer.succeed(
         TextGeneration.TextGeneration,
         TextGeneration.TextGeneration.of({
+          generateThreadSummary: () => Effect.die("summary unavailable in this test"),
           generateCommitMessage: () => Effect.die("not used"),
           generatePrContent: () => Effect.die("not used"),
           generateBranchName: () => Effect.die("not used"),

@@ -135,6 +135,22 @@ export function AutoSettleSettingsRows(props: {
 
   return (
     <View className="gap-6">
+      {!projectSelected &&
+      displayTargets.every(
+        ({ environment }) =>
+          environment.serverConfig?.environment.capabilities.threadSummaries === true,
+      ) ? (
+        <SettingsSection title={gt("Text generation")}>
+          <SettingsSwitchRow
+            icon="doc.text"
+            label={gt("Automatic thread summaries")}
+            subtitle={gt("Keep thread summaries current using your text-generation model.")}
+            value={referenceSettings.automaticThreadSummaries}
+            disabled={disabledFor("automaticThreadSummaries")}
+            onValueChange={(value) => props.write({ automaticThreadSummaries: value })}
+          />
+        </SettingsSection>
+      ) : null}
       {!projectSelected ? (
         <SettingsSection title={gt("Usage limits")}>
           <SettingsSwitchRow

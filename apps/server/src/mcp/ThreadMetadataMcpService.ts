@@ -63,7 +63,10 @@ function metadataCommand(input: {
   readonly commandId: CommandId;
   readonly threadId: ThreadId;
   readonly update: ThreadMetadataMcpUpdateInput;
-}): Extract<OrchestrationV2Command, { readonly type: "thread.metadata.update" }> {
+}): Extract<
+  OrchestrationV2Command,
+  { readonly type: "thread.metadata.update" | "thread.summary.refresh" }
+> {
   switch (input.update.action) {
     case "rename":
       return {
@@ -71,6 +74,12 @@ function metadataCommand(input: {
         commandId: input.commandId,
         threadId: input.threadId,
         title: input.update.title!,
+      };
+    case "refresh_summary":
+      return {
+        type: "thread.summary.refresh",
+        commandId: input.commandId,
+        threadId: input.threadId,
       };
     case "regenerate_title":
       return {

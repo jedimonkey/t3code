@@ -338,6 +338,7 @@ import {
   WorkspaceTitlebarControls,
 } from "./chat/PanelLayoutControls";
 import type { ExpandedImagePreview } from "./chat/ExpandedImagePreview";
+import { ThreadSummary } from "./chat/ThreadSummary";
 import { ThreadDetailsPanel } from "./chat/ThreadDetailsPanel";
 import { NoActiveThreadState } from "./NoActiveThreadState";
 import {
@@ -522,6 +523,11 @@ export default function ChatView(props: ChatViewProps) {
   const interruptThreadTurn = useOrchestrationCommand(threadEnvironment.interruptTurn, {
     reportFailure: false,
   });
+  const [summaryMessageJump, setSummaryMessageJump] = useState<{
+    threadKey: string;
+    messageId: MessageId;
+    key: number;
+  } | null>(null);
   const loadEarlierThreadHistory = useAtomCommand(threadEnvironment.loadEarlierHistory, {
     label: "load earlier thread history",
     reportFailure: false,
@@ -3676,6 +3682,9 @@ export default function ChatView(props: ChatViewProps) {
                   activeThreadKey={activeThreadKey}
                   syncing={threadSyncPhase !== null}
                   detailLoading={threadDetailLoading}
+                  messageJump={
+                    summaryMessageJump?.threadKey === routeThreadKey ? summaryMessageJump : null
+                  }
                   citationRequest={citationRequest}
                   citationHistory={citationHistory}
                   onCiteAssistantText={citeAssistantTextStable}
@@ -4142,6 +4151,24 @@ export default function ChatView(props: ChatViewProps) {
                 />
 
                 <ThreadDetailsPanel
+                  summary={
+                    serverProjection ? (
+                      <ThreadSummary
+                        key={routeThreadKey}
+                        thread={routeThreadRef}
+                        summary={serverProjection.thread.runningSummary ?? null}
+                        canRefresh={canOperateThread}
+                        onJump={(messageId) => {
+                          setSummaryMessageJump((previous) => ({
+                            threadKey: routeThreadKey,
+                            messageId,
+                            key: (previous?.key ?? 0) + 1,
+                          }));
+                          threadHistoryControls?.onLoadEarlier(messageId);
+                        }}
+                      />
+                    ) : undefined
+                  }
                   anchor={threadPanelPopoverAnchorRef}
                   handle={threadPanelPopoverHandle}
                   forceNewWorktree={multipleModelSelections !== null}
